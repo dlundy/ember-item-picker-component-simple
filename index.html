@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ember Item Picker Demo</title>
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <script type="text/x-handlebars">
+    {{outlet}}
+  </script>
+
+  <script type="text/x-handlebars" id="index">
+    <h2>Album Name: {{content.title}}</h2>
+    <h3>Artist Name: {{content.artist.name}}</h3>
+    <img {{bind-attr src=content.artist.imgUrl}} style="height: 150px; display: block; margin-bottom: 20px">
+    {{item-picker items=artists selected=content.artist propertyName='name'}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="components/item-picker">
+    <div {{bind-attr class=":dropdown active"}} style="width: 300px;">
+      <a class="dropdown-header" tabindex="-1" {{action "toggle"}}>
+        {{#if hasSelection}}
+          <span class="dropdown-display">{{selectedWithProperty}}</span>
+        {{else}}
+          <span class="dropdown-display placeholder">Please make a selection</span>
+        {{/if}}
+      </a>
+      <div class="dropdown-body" id="dropdown-body">
+        <div class="dropdown-body-wrapper">
+          <div class="dropdown-query">
+            {{input id="dropdown-query-input" type="text" value=query }}
+          </div>
+          {{collection  Ember.CollectionView
+                        tagName="ul"
+                        content=_displayedResults
+                        class="dropdown-results"
+                        itemViewClass="App.ItemView"}}
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="views/item-result">
+    {{#with view.content}}
+      {{highlight display start end}}
+    {{/with}}
+  </script>
+
+  <script src="js/libs/jquery-1.10.2.js"></script>
+  <script src="js/libs/handlebars-1.1.2.js"></script>
+  <script src="js/libs/ember-1.5.0.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
