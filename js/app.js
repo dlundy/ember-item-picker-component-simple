@@ -9,7 +9,9 @@ App.Album = Ember.Object.extend({
 App.Artist = Ember.Object.extend({
   name: '',
   imgUrl: '',
-  butt: ''
+  toString: function() {
+    return this.get('name');
+  }
 });
 
 var sample_artists = [
@@ -88,23 +90,13 @@ App.IndexController = Ember.Controller.extend({
 
 App.ItemPickerComponent = Ember.Component.extend({
   query: '',
-  classNames: ['item-picker'],
-  propertyName: '',
   _displayedResults: [],
+  classNames: ['item-picker'],
 
   // after component is ready, pre-populate the default listing
   didInsertElement: function() {
     this.fire();
   },
-
-  hasSelection: function() {
-    var property = this.get('selectedWithProperty');
-    return (property !== undefined && property !== null);
-  }.property('selectedWithProperty'),
-
-  selectedWithProperty: function() {
-    return this.getWithDefault('selected.' + this.get('propertyName'), this.get('selected'));
-  }.property('selected'),
 
   // Debounced observer. Watches for query changes, but will only act on them every 300ms.
   queryChanged: function() {
@@ -113,36 +105,21 @@ App.ItemPickerComponent = Ember.Component.extend({
 
   fire: function() {
     var query = this.get('query');
-    results = [];
-    var propertyName = this.get('propertyName');
-
     if (query.length > 0) { 
+      results = [];
       query = ' ' + query.toUpperCase().trim();
       this.get('items').forEach(function(item, index) {
-        var match_str = ' ' + item.getWithDefault(propertyName, item).toUpperCase();
+        var match_str = ' ' + item.toString().toUpperCase();
         var pos = match_str.indexOf(query);
         if (pos !== -1) {
-          var newResult = {
-            display: item.getWithDefault(propertyName, item),
-            data: item,
-            start: pos,
-            end: (pos + query.length - 1)
-          };
-          results.push(newResult);
+          results.push(item);
         }
       });
+      this.set('_displayedResults', results);
     }
     else {
-      this.get('items').forEach(function(item, index) {
-        results.push({
-          display: item.getWithDefault(propertyName, item),
-          data: item,
-          start: -1,
-          end: -1
-        });
-      });
+      this.set('_displayedResults', this.get('items'));
     }
-    this.set('_displayedResults', results);
   },
 
   activate: function() {
@@ -190,22 +167,8 @@ App.ItemPickerComponent = Ember.Component.extend({
 
 App.ItemView = Ember.View.extend({
   classNames: 'dropdown-result',
-  templateName: 'views/item-result',
+  templateName: 'views/item-view',
   click: function() {
-    this.get('controller').send('pick', this.get('content.data'));
-  }
-});
-
-// Handlebars helper to do string highlighting.
-Ember.Handlebars.helper('highlight', function(str, start, end, options) {
-  if (start >= 0 && end > 0) {
-    var left, middle, right;
-    left = (start > 0) ? str.slice(0, start) : '';
-    middle = str.slice(start, end);
-    right = str.slice(end)
-    return new Handlebars.SafeString(left + '<em>' + middle + '</em>' + right);
-  }
-  else {
-    return str;
+    this.get('controller').send('pick', this.get('content'));
   }
 });
