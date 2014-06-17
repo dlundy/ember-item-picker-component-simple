@@ -1,4 +1,3 @@
-Ember Item Picker Example
-===========
+Super simple version of:
 
-An example of an item picker in Ember with filtering by search.
+https://github.com/dlundy/ember-cropper-component
